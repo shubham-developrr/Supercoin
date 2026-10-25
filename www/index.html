@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SuperCoin Vault</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="SuperCoin Vault" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <!-- ===== Top Bar ===== -->
+  <header class="topbar">
+    <div class="tb-left">
+      <div class="coin-icon">&#128177;</div>
+      <div class="tb-title">SuperCoin Vault</div>
+      <div class="tb-pill" id="topPill"><span class="active-num" id="goActive">0</span>/11 GoSats Active</div>
+    </div>
+    <div class="tb-right">
+      <button class="tb-btn" id="btnHideNames" title="Hide/Show Names">&#128065;</button>
+      <button class="tb-btn" id="btnActivity" title="Activity Log">&#x1F4CA;</button>
+      <button class="tb-btn" id="btnVault" title="Vault Directory">&#x1F527;</button>
+      <button class="tb-btn" id="btnBackup" title="Backup / Restore">&#x1F4BE;</button>
+    </div>
+  </header>
+
+  <!-- ===== Bento Row: Metrics + Command Bar ===== -->
+  <section class="bento-row">
+    <div class="metric-card" id="mActive"></div>
+    <div class="metric-card" id="mComing"></div>
+    <div class="metric-card" id="mExpiring"></div>
+    <div class="command-card">
+      <input type="text" id="cmdInput"
+             placeholder="e.g. Riya bhabhi 457 pending credited, M2 Pro Shopsy day 4, Papa +50" />
+      <button class="btn-sm primary" id="cmdSend">Go</button>
+      <button class="undo-chip hidden" id="cmdUndo">Undo</button>
+    </div>
+  </section>
+
+  <!-- ===== Subheader + Sort ===== -->
+  <section class="subheader">
+    <div class="legend">
+      <span class="legend-dot" style="background:var(--green)"></span>
+      <span style="font-weight:700">GoSats Active</span>
+      &nbsp;
+      <span class="legend-dot" style="background:var(--red)"></span>
+      <span style="font-weight:700">GoSats Inactive</span>
+    </div>
+    <div class="segs">
+      <button class="seg active" data-sort="id">#1–11</button>
+      <button class="seg" data-sort="balance">Balance</button>
+      <button class="seg" data-sort="coming">Coming</button>
+      <button class="seg" data-sort="shopsy">Shopsy 7D</button>
+      <button class="seg" data-sort="expiring">Expiring</button>
+    </div>
+  </section>
+
+  <!-- ===== Account Grid ===== -->
+  <div class="grid" id="grid"></div>
+
+  <!-- ===== Toast ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== Account Detail Modal ===== -->
+  <div class="backdrop" id="backdropAcct">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="acctTitle">Vault</div>
+        <button class="modal-close" id="btnCloseAcct">&#215;</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active" id="tabVault">Vault Details</button>
+        <button class="tab" id="tabCoins">Coins &amp; Expiry</button>
+        <button class="tab" id="tabHistory">History</button>
+      </div>
+      <div class="modal-body">
+        <div id="panelVault"></div>
+        <div id="panelCoins" class="hidden"></div>
+        <div id="panelHistory" class="hidden">
+          <div class="form-row">
+            <div style="display:flex;gap:6px">
+              <input class="input" id="inHistAmount" type="number" placeholder="Amount" style="flex:0 0 110px" />
+              <input class="input" id="inHistReason" placeholder="Reason" />
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin:8px 0">
+            <button class="btn-sm" id="btnToggleHistType" style="flex:0 0 90px">Gained</button>
+            <button class="btn-sm primary" id="btnAddHist" style="flex:1">Add Transaction</button>
+          </div>
+          <div id="histList"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm danger" id="btnDelAcct">Delete Account</button>
+        <button class="btn-sm" id="btnAddAcct">Add Account</button>
+        <button class="btn-sm primary" id="btnSaveAcct">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Vault Directory Modal ===== -->
+  <div class="backdrop" id="backdropDir">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Vault Directory</div>
+        <button class="modal-close" id="btnCloseDir">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Tap any row to open its Vault Modal</div>
+        <div id="dirTable"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm primary" id="btnCloseDirB">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Backup / Restore Modal ===== -->
+  <div class="backdrop" id="backdropBackup">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Backup / Restore</div>
+        <button class="modal-close" id="btnCloseBackup">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div class="hint">Full JSON snapshot of all accounts, streaks and history</div>
+        <textarea class="ta" id="taJson" readonly></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn-sm" id="btnCopyJson">Copy JSON</button>
+          <button class="btn-sm" id="btnExportJson">Export .json</button>
+        </div>
+        <div class="hint">Paste a JSON backup below, then restore</div>
+        <textarea class="ta" id="taPaste" rows="4" placeholder="Paste JSON here..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn-sm" id="btnPasteRestore">Paste &amp; Restore</button>
+          <label style="font-size:12px;color:var(--text-secondary);flex:1">Import file:</label>
+          <input type="file" id="fileImport" accept=".json" style="font-size:12px" />
+        </div>
+        <div class="status" id="backupStatus"></div>
+        <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px">
+          <div class="hint">Optional: Gemini API Key (complex multi-account commands; stored locally)</div>
+          <div class="input-row" style="margin-top:4px">
+            <input class="input" id="inGemini" type="password" placeholder="AIza..." />
+            <button class="btn-sm" id="btnGeminiSave" style="flex:0 0 80px">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm primary" id="btnCloseBackupB">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Activity Log Modal ===== -->
+  <div class="backdrop" id="backdropLog">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Activity Log</div>
+        <button class="modal-close" id="btnCloseLog">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div id="logList"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm primary" id="btnCloseLogB">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Quick Log Modal (+ / −) ===== -->
+  <div class="backdrop" id="backdropQuick">
+    <div class="modal" style="max-width:340px">
+      <div class="modal-header">
+        <div class="modal-title" id="quickTitle">Log Coins</div>
+        <button class="modal-close" id="btnCloseQuick">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="btn-sm" id="quickType" style="flex:1">Gained</button>
+          <button class="btn-sm" id="btnToggleQuickType" style="flex:0 0 120px">Switch to Used</button>
+        </div>
+        <div class="form-row col1">
+          <label class="f-lbl">Amount</label>
+          <input class="input" id="quickAmount" type="number" placeholder="e.g. 48" />
+        </div>
+        <div class="form-row col1">
+          <label class="f-lbl">Reason (optional)</label>
+          <input class="input" id="quickReason" placeholder="e.g. Flipkart order refund" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm primary" id="btnQuickSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

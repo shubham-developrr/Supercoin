@@ -1,0 +1,8 @@
+node_modules/
+.capacitor/
+android/
+*.apk
+*.aab
+.DS_Store
+logs
+npm-debug.log*
