@@ -1,0 +1,28 @@
+{
+  "name": "supercoin-vault",
+  "version": "1.0.0",
+  "description": "SuperCoin Vault — offline-first Flipkart SuperCoins / Shopsy / GoSats tracker for 11 accounts",
+  "type": "module",
+  "scripts": {
+    "serve": "cd www && npx http-server . -p 8080 -o -c-1",
+    "android:add": "npx cap add android",
+    "android:open": "npx cap open android",
+    "android:sync": "npx cap sync android"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.0.1",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^7.0.1",
+    "http-server": "^14.1.1"
+  },
+  "keywords": [
+    "flipkart",
+    "supercoins",
+    "shopsy",
+    "gosats",
+    "offline",
+    "pwa",
+    "capacitor"
+  ],
+  "license": "MIT"
+}
